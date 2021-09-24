@@ -129,6 +129,123 @@ namespace LorModdingExtensions
 			tmp.overflowMode = TextOverflowModes.Overflow;
 			tmp.fontSize = 24;
 		}
+		
+		/// <summary>
+		/// 一時的なギフトを付与する
+		/// アルリウネの月桂冠や罪善の茨の冠などのような表示が可能になる
+		/// </summary>
+		/// <param name="_instance"></param>
+		/// <param name="modGiftData">表示する画像などの情報</param>
+		/// <param name="position">Giftが付与される場所のタイプ　GiftPosition参照</param>
+		/// <param name="forcedDisplay">強制表示フラグ　Trueであれば本来Giftを表示しない固定スキンにも強制的にギフトを追加する</param>
+		/// <param name="refreshAppearance">表示更新フラグ　Trueでよい（defaultでTrue）</param>
+		/// <returns></returns>
+		public static GiftAppearance SetTemporaryGift(this CharacterAppearance _instance, ModGiftData modGiftData, GiftPosition position, bool forcedDisplay = false, bool refreshAppearance = true)
+		{
+			if (_instance.CustomAppearance == null && !forcedDisplay) return null;
+			GiftAppearance giftData = _instance.CreateModGiftData(new GiftModel(Singleton<GiftXmlList>.Instance.CreateTemporaryGift("", position)), modGiftData, forcedDisplay);
+			if (!refreshAppearance)
+				return giftData;
+			_instance.RefreshAppearanceByGifts();
+			return giftData;
+		}
+		
+		private static GiftAppearance CreateModGiftData(this CharacterAppearance _instance, GiftModel gift, ModGiftData modGiftData, bool forcedDisplay)
+		{
+			GameObject customizedAppearanceObject;
+			if (_instance.CustomAppearance == null)
+			{
+				customizedAppearanceObject = new GameObject();
+				DummyCustomizedAppearance customized = customizedAppearanceObject.AddComponent<DummyCustomizedAppearance>();
+				customized.Initialize(_instance);
+				_instance.GetType().GetField("_customAppearance", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(_instance, customized);
+			}
+			else
+			{
+				customizedAppearanceObject = _instance.CustomAppearance.gameObject;
+			}
+			
+			Dictionary<GiftPosition, GiftAppearance> giftAppearanceDic = _instance.GiftAppearances;
+			bool flag = false;
+			GiftAppearance giftAppearance = null;
+			if (giftAppearanceDic.ContainsKey(gift.ClassInfo.Position))
+			{
+				giftAppearance = giftAppearanceDic[gift.ClassInfo.Position];
+				if (giftAppearance.ResourceName != "")
+				{
+					giftAppearanceDic.Remove(gift.ClassInfo.Position);
+					Object.Destroy(giftAppearance.gameObject);
+					flag = true;
+				}else if(!giftAppearance.isActiveAndEnabled)
+				{
+					giftAppearance.gameObject.SetActive(true);
+				}
+			}
+			else
+				flag = true;
+			if (flag)
+			{
+				GameObject rootObject = new GameObject();
+				Transform parent = _instance.CharacterMotions.ContainsKey(ActionDetail.Standing) ? _instance.CharacterMotions[ActionDetail.Standing].customPivot : _instance.CharacterMotions[ActionDetail.Default].customPivot;
+				customizedAppearanceObject.transform.SetParent(parent);
+				customizedAppearanceObject.transform.localPosition = Vector3.zero;
+				customizedAppearanceObject.transform.localScale = Vector3.one;
+				rootObject.transform.SetParent(customizedAppearanceObject.transform);
+				giftAppearance = rootObject.AddComponent<GiftAppearance>();
+				Type type = giftAppearance.GetType();
+				
+				if(!string.IsNullOrEmpty(modGiftData.FrontSprite))
+				{
+					GameObject front = new GameObject();
+					front.transform.SetParent(rootObject.transform);
+					SpriteRenderer frontSprite = front.AddComponent<SpriteRenderer>();
+					frontSprite.sprite = LoadModSprite(modGiftData.WorkshopId, modGiftData.FrontSprite);
+					type.GetField("_frontSpriteRenderer", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(giftAppearance, frontSprite);
+				}
+				if(!string.IsNullOrEmpty(modGiftData.FrontBackSprite))
+				{
+					GameObject frontBack = new GameObject();
+					frontBack.transform.SetParent(rootObject.transform);
+					SpriteRenderer frontBackSprite = frontBack.AddComponent<SpriteRenderer>();
+					frontBackSprite.sprite = LoadModSprite(modGiftData.WorkshopId, modGiftData.FrontBackSprite);
+					type.GetField("_frontBackSpriteRenderer", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(giftAppearance, frontBackSprite);
+				}
+				if(!string.IsNullOrEmpty(modGiftData.SideSprite))
+				{
+					GameObject side = new GameObject();
+					side.transform.SetParent(rootObject.transform);
+					SpriteRenderer sideSprite = side.AddComponent<SpriteRenderer>();
+					sideSprite.sprite = LoadModSprite(modGiftData.WorkshopId, modGiftData.SideSprite);
+					type.GetField("_sideSpriteRenderer", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(giftAppearance, sideSprite);
+				}
+				if(!string.IsNullOrEmpty(modGiftData.SideBackSprite))
+				{
+					GameObject sideBack = new GameObject();
+					sideBack.transform.SetParent(rootObject.transform);
+					SpriteRenderer sideBackSprite = sideBack.AddComponent<SpriteRenderer>();
+					sideBackSprite.sprite = LoadModSprite(modGiftData.WorkshopId, modGiftData.SideBackSprite);
+					type.GetField("_sideBackSpriteRenderer", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(giftAppearance, sideBackSprite);
+				}
+				
+				rootObject.transform.localPosition = Vector3.zero;
+				rootObject.transform.localScale = Vector3.one;
+				
+				giftAppearanceDic.Add(gift.ClassInfo.Position, giftAppearance);
+				
+			}
+			if (giftAppearance != null)
+			{
+				giftAppearance.Init(gift, (string)_instance.GetType().GetField("_layerName", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(_instance));
+				BodyAura[] componentsInChildren = giftAppearance.gameObject.GetComponentsInChildren<BodyAura>();
+				if (componentsInChildren != null && componentsInChildren.Length != 0)
+				{
+					foreach (BodyAura bodyAura in componentsInChildren)
+						bodyAura.SetAppearance(_instance);
+				}
+				giftAppearance.RefreshAppearance(_instance.CustomAppearance, (CharacterMotion)_instance.GetType().GetField("_currentMotion", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(_instance));
+			}
+			return giftAppearance;
+		}
 
 	}
 

@@ -25,6 +25,8 @@ public class DiceCardSelfAbility_MapChangeSample : DiceCardSelfAbilityBase
 		base.OnStartBattle();
 		Extension_MapLoader.ChangeToEgoMap(mapData, workshopId);
 		
+		
+		
 		GameObject nullObject = null;
 		try
 		{

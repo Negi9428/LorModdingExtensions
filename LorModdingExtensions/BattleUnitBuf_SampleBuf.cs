@@ -33,6 +33,8 @@ namespace LorModdingExtensions
 		
 		// 既存のアイコンを使用したい場合はここを設定する　対応文字列はKeywordBufの定義を参照のこと
 		// protected override string keywordIconId => "Alriune_Petal";
+		
+		private GiftAppearance _gift;
 
 		public override void Init(BattleUnitModel owner)
 		{
@@ -41,11 +43,25 @@ namespace LorModdingExtensions
 			//これを呼び出すことでゲーム本体のバフ情報に追加できる
 			//既存のアイコンを使用する場合はAddEffectTextの方を呼び出せばよい
 			BattleEffectTextsXmlList.Instance.AddEffectTextAndIcon(keywordId, name, desc, workshopID, icon);
+			
+			//Gift追加用のメソッド呼び出し　バフが消えた際にギフトを非表示にするためにギフトを変数に保持しておく
+			_gift = owner.view.charAppearance.SetTemporaryGift(new ModGiftData(workshopID, icon, "", "Test_Icon2.png", ""), GiftPosition.HairAccessory);
 		}
 
 		public override void OnRoundEnd()
 		{
 			Destroy();
+		}
+
+		public override void Destroy()
+		{
+			//バフ消滅時にギフトを非表示にする処理
+			if (_gift != null)
+			{
+				if (_gift.isActiveAndEnabled)
+					_gift.gameObject.SetActive(false);
+			}
+			base.Destroy();
 		}
 
 	}

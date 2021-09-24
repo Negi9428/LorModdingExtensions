@@ -7,8 +7,8 @@
         <ProjectGuid>{C95FB4D4-A4CF-4712-B5CF-9B8DB26B75F8}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>NegiExtensions</RootNamespace>
-        <AssemblyName>NegiExtensions</AssemblyName>
+        <RootNamespace>LorModdingExtensions</RootNamespace>
+        <AssemblyName>LorModdingExtensions</AssemblyName>
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
     </PropertyGroup>
@@ -60,6 +60,7 @@
         <Compile Include="CoroutineHandler.cs" />
         <Compile Include="DataClasses.cs" />
         <Compile Include="DiceCardSelfAbility_MapChangeSample.cs" />
+        <Compile Include="DummyCustomizedAppearance.cs" />
         <Compile Include="EnemyTeamStageManager_ModBase.cs" />
         <Compile Include="EnemyTeamStageManager_SampleStageManager.cs" />
         <Compile Include="Extensions.cs" />

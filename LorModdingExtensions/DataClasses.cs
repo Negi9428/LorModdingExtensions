@@ -54,4 +54,28 @@ namespace LorModdingExtensions
 		
 	}
 
+	public class ModGiftData
+	{
+
+		public string WorkshopId { get; }
+		
+		public string FrontSprite { get; }
+		
+		public string FrontBackSprite { get; }
+		
+		public string SideSprite { get; }
+		
+		public string SideBackSprite { get; }
+
+		public ModGiftData(string workshopId, string frontSprite, string frontBackSprite, string sideSprite, string sideBackSprite)
+		{
+			WorkshopId = workshopId;
+			FrontSprite = frontSprite;
+			FrontBackSprite = frontBackSprite;
+			SideSprite = sideSprite;
+			SideBackSprite = sideBackSprite;
+		}
+
+	}
+
 }
