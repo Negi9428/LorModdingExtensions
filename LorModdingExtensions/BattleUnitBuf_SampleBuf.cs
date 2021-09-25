@@ -45,7 +45,7 @@ namespace LorModdingExtensions
 			BattleEffectTextsXmlList.Instance.AddEffectTextAndIcon(keywordId, name, desc, workshopID, icon);
 			
 			//Gift追加用のメソッド呼び出し　バフが消えた際にギフトを非表示にするためにギフトを変数に保持しておく
-			_gift = owner.view.charAppearance.SetTemporaryGift(new ModGiftData(workshopID, icon, "", "Test_Icon2.png", ""), GiftPosition.HairAccessory);
+			_gift = owner.view.charAppearance.SetTemporaryGift(new ModGiftData(workshopID, icon, "", "Test_Icon2.png", ""), GiftPosition.HairAccessory, true);
 		}
 
 		public override void OnRoundEnd()
