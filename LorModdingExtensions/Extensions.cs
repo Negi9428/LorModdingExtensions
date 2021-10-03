@@ -143,14 +143,14 @@ namespace LorModdingExtensions
 		public static GiftAppearance SetTemporaryGift(this CharacterAppearance _instance, ModGiftData modGiftData, GiftPosition position, bool forcedDisplay = false, bool refreshAppearance = true)
 		{
 			if (_instance.CustomAppearance == null && !forcedDisplay) return null;
-			GiftAppearance giftData = _instance.CreateModGiftData(new GiftModel(Singleton<GiftXmlList>.Instance.CreateTemporaryGift("", position)), modGiftData, forcedDisplay);
+			GiftAppearance giftData = _instance.CreateModGiftData(new GiftModel(Singleton<GiftXmlList>.Instance.CreateTemporaryGift("", position)), modGiftData);
 			if (!refreshAppearance)
 				return giftData;
 			_instance.RefreshAppearanceByGifts();
 			return giftData;
 		}
 		
-		private static GiftAppearance CreateModGiftData(this CharacterAppearance _instance, GiftModel gift, ModGiftData modGiftData, bool forcedDisplay)
+		private static GiftAppearance CreateModGiftData(this CharacterAppearance _instance, GiftModel gift, ModGiftData modGiftData)
 		{
 			GameObject customizedAppearanceObject;
 			if (_instance.CustomAppearance == null)
@@ -171,7 +171,7 @@ namespace LorModdingExtensions
 			if (giftAppearanceDic.ContainsKey(gift.ClassInfo.Position))
 			{
 				giftAppearance = giftAppearanceDic[gift.ClassInfo.Position];
-				if (giftAppearance.ResourceName != "")
+				if (giftAppearance.ResourceName != modGiftData.GiftId)
 				{
 					giftAppearanceDic.Remove(gift.ClassInfo.Position);
 					Object.Destroy(giftAppearance.gameObject);
@@ -192,6 +192,7 @@ namespace LorModdingExtensions
 				customizedAppearanceObject.transform.localScale = Vector3.one;
 				rootObject.transform.SetParent(customizedAppearanceObject.transform);
 				giftAppearance = rootObject.AddComponent<GiftAppearance>();
+				giftAppearance.SetResourceName(modGiftData.GiftId);
 				Type type = giftAppearance.GetType();
 				
 				if(!string.IsNullOrEmpty(modGiftData.FrontSprite))

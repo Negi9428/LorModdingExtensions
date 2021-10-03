@@ -56,6 +56,8 @@ namespace LorModdingExtensions
 
 	public class ModGiftData
 	{
+		
+		public string GiftId { get; }
 
 		public string WorkshopId { get; }
 		
@@ -67,8 +69,9 @@ namespace LorModdingExtensions
 		
 		public string SideBackSprite { get; }
 
-		public ModGiftData(string workshopId, string frontSprite, string frontBackSprite, string sideSprite, string sideBackSprite)
+		public ModGiftData(string giftId, string workshopId, string frontSprite, string frontBackSprite, string sideSprite, string sideBackSprite)
 		{
+			GiftId = giftId;
 			WorkshopId = workshopId;
 			FrontSprite = frontSprite;
 			FrontBackSprite = frontBackSprite;
